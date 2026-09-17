@@ -91,7 +91,7 @@ export function LoginScreen() {
 
 const styles = StyleSheet.create({
   header: { marginTop: spacing.xxl, marginBottom: spacing.xl },
-  title: { ...typography.h1, color: colors.primaryDark },
+  title: { ...typography.h1, color: colors.textPrimary },
   subtitle: { ...typography.body, color: colors.textSecondary, marginTop: spacing.xs },
   error: { ...typography.caption, color: colors.danger, marginBottom: spacing.md },
   hint: {

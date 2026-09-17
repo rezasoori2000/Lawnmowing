@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../theme';
+import { colors, fonts, radius, spacing, typography } from '../theme';
 import { FormLabel } from './FormLabel';
 
 export interface ChipOption<T extends string> {
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     backgroundColor: colors.surface,
   },
-  chipSelected: { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+  chipSelected: { backgroundColor: colors.primary, borderColor: colors.primary },
   chipText: { ...typography.caption, color: colors.textPrimary },
-  chipTextSelected: { color: colors.primaryDark, fontWeight: '700' },
+  chipTextSelected: { color: colors.textInverse, fontFamily: fonts.bold },
 });

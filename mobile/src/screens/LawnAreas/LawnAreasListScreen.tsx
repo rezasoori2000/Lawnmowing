@@ -7,7 +7,9 @@ import { EmptyState } from '../../components/EmptyState';
 import { PrimaryButton } from '../../components/PrimaryButton';
 import { Screen } from '../../components/Screen';
 import { StatusBadge } from '../../components/StatusBadge';
+import { SearchIcon } from '../../components/icons';
 import type { LawnAreasStackParamList } from '../../navigation/types';
+import type { DueStatus } from '../../types';
 import { colors, radius, spacing, typography } from '../../theme';
 import { frequencyLabel } from '../../constants/frequencies';
 import { formatDisplayDate, todayIso } from '../../utils/date';
@@ -15,9 +17,19 @@ import { getLawnAreaDueInfo } from '../../utils/dueDate';
 
 type Props = NativeStackScreenProps<LawnAreasStackParamList, 'LawnAreasList'>;
 
+type Filter = 'all' | DueStatus;
+
+const FILTERS: { value: Filter; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'overdue', label: 'Overdue' },
+  { value: 'due', label: 'Due' },
+  { value: 'ok', label: 'On track' },
+];
+
 export function LawnAreasListScreen({ navigation }: Props) {
   const { data: lawnAreas, isLoading } = useLawnAreasWithLastMowed();
   const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState<Filter>('all');
   const today = todayIso();
 
   const filtered = useMemo(() => {
@@ -26,23 +38,43 @@ export function LawnAreasListScreen({ navigation }: Props) {
     const list = q ? all.filter(a => a.name.toLowerCase().includes(q)) : all;
     return list
       .map(area => getLawnAreaDueInfo(area, today))
+      .filter(info => filter === 'all' || info.status === filter)
       .sort((a, b) => a.lawnArea.name.localeCompare(b.lawnArea.name));
-  }, [lawnAreas, search, today]);
+  }, [lawnAreas, search, today, filter]);
 
   return (
     <Screen>
       <View style={styles.header}>
-        <Text style={styles.title}>Lawn Areas</Text>
+        <Text style={styles.title}>Lawn areas</Text>
         <PrimaryButton title="+ Add" onPress={() => navigation.navigate('AddLawnArea')} style={styles.addButton} />
       </View>
 
-      <TextInput
-        style={styles.search}
-        placeholder="Search by name..."
-        placeholderTextColor={colors.textSecondary}
-        value={search}
-        onChangeText={setSearch}
-      />
+      <View style={styles.search}>
+        <SearchIcon color={colors.textSecondary} size={17} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search areas"
+          placeholderTextColor={colors.textSecondary}
+          value={search}
+          onChangeText={setSearch}
+        />
+      </View>
+
+      <View style={styles.filterRow}>
+        {FILTERS.map(f => {
+          const selected = f.value === filter;
+          return (
+            <TouchableOpacity
+              key={f.value}
+              onPress={() => setFilter(f.value)}
+              style={[styles.filterChip, selected && styles.filterChipSelected]}>
+              <Text style={[styles.filterChipText, selected && styles.filterChipTextSelected]}>
+                {f.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
 
       {isLoading ? (
         <ActivityIndicator color={colors.primary} style={styles.loading} />
@@ -83,15 +115,30 @@ const styles = StyleSheet.create({
   title: { ...typography.h1, color: colors.textPrimary },
   addButton: { paddingHorizontal: spacing.lg, minHeight: 40 },
   search: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.md,
+    borderRadius: radius.pill,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     backgroundColor: colors.surface,
-    color: colors.textPrimary,
     marginBottom: spacing.md,
   },
+  searchInput: { flex: 1, ...typography.body, color: colors.textPrimary, padding: 0 },
+  filterRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md },
+  filterChip: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm - 2,
+    backgroundColor: colors.surface,
+  },
+  filterChipSelected: { backgroundColor: colors.accent, borderColor: colors.accent },
+  filterChipText: { ...typography.small, color: colors.textSecondary },
+  filterChipTextSelected: { color: colors.background },
   loading: { marginTop: spacing.xxl },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   name: { ...typography.bodyBold, color: colors.textPrimary, flexShrink: 1, marginRight: spacing.sm },

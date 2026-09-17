@@ -1,25 +1,28 @@
 export const colors = {
-  background: '#F5F7F5',
-  surface: '#FFFFFF',
-  border: '#E2E8E4',
-  textPrimary: '#1B2721',
-  textSecondary: '#5C6B62',
-  textInverse: '#FFFFFF',
-  primary: '#2E7D32',
-  primaryDark: '#1B5E20',
-  primaryLight: '#DCEDC8',
-  accent: '#0277BD',
-  danger: '#C62828',
+  background: '#1d2414',
+  backgroundDeep: '#0f150a',
+  surface: 'rgba(18, 26, 12, 0.5)',
+  surfaceStrong: 'rgba(61, 71, 43, 0.62)',
+  border: 'rgba(240, 250, 225, 0.12)',
+  textPrimary: '#f0f4e8',
+  textSecondary: '#c3cdb2',
+  textInverse: '#f5ead8',
+  primary: '#c67139',
+  primaryPressed: '#b2622d',
+  primaryDark: '#8a4e26',
+  primaryLight: '#f4bf96',
+  accent: '#ccdbb2',
+  danger: '#e5877e',
 
   // Due/overdue status colors (also used for lawn-area status badges/chips).
-  statusOk: '#2E7D32', // green - not due yet
-  statusOkBg: '#E6F4EA',
-  statusDueSoon: '#F9A825', // amber - due within the next couple of days
-  statusDueSoonBg: '#FFF6E0',
-  statusDue: '#EF6C00', // orange - due today / this week
-  statusDueBg: '#FFEFDD',
-  statusOverdue: '#C62828', // red - overdue
-  statusOverdueBg: '#FCE7E7',
+  statusOk: '#d6e2bd', // soft green - not due yet
+  statusOkBg: 'rgba(174, 191, 146, 0.28)',
+  statusDueSoon: '#e6ecd8', // pale cream - due within the next couple of days
+  statusDueSoonBg: 'rgba(240, 250, 225, 0.15)',
+  statusDue: '#e6ecd8', // pale cream - due today / this week
+  statusDueBg: 'rgba(240, 250, 225, 0.15)',
+  statusOverdue: '#f4bf96', // terracotta - overdue
+  statusOverdueBg: 'rgba(214, 127, 72, 0.3)',
 } as const;
 
 export type ColorToken = keyof typeof colors;

@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
   },
   loading: { marginTop: spacing.xxl },
   totalLabel: { ...typography.caption, color: colors.textSecondary },
-  totalValue: { ...typography.h1, color: colors.primaryDark, marginTop: spacing.xs },
+  totalValue: { ...typography.h1, color: colors.primaryLight, marginTop: spacing.xs },
   section: { marginTop: spacing.lg, marginBottom: spacing.sm },
   sectionTitle: { ...typography.h3, color: colors.textPrimary, marginBottom: spacing.sm },
   reportRow: {
@@ -112,5 +112,5 @@ const styles = StyleSheet.create({
   },
   reportRowLast: { borderBottomWidth: 0 },
   reportLabel: { ...typography.body, color: colors.textPrimary },
-  reportCount: { ...typography.bodyBold, color: colors.primaryDark },
+  reportCount: { ...typography.bodyBold, color: colors.primaryLight },
 });

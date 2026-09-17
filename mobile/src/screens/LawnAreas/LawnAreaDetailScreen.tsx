@@ -11,7 +11,7 @@ import { PrimaryButton } from '../../components/PrimaryButton';
 import { Screen } from '../../components/Screen';
 import { StatusBadge } from '../../components/StatusBadge';
 import type { LawnAreasStackParamList } from '../../navigation/types';
-import { colors, spacing, typography } from '../../theme';
+import { colors, radius, spacing, typography } from '../../theme';
 import { frequencyLabel } from '../../constants/frequencies';
 import { MOW_HEIGHT_OPTIONS } from '../../constants/mowOptions';
 import { formatDisplayDate, todayIso } from '../../utils/date';
@@ -53,15 +53,24 @@ export function LawnAreaDetailScreen({ route, navigation }: Props) {
               <Text style={styles.title}>{lawnArea.name}</Text>
               <StatusBadge status={dueInfo.status} />
             </View>
-            <Card>
-              <Row label="Target frequency" value={frequencyLabel(lawnArea.frequency)} />
-              <Row label="Default mow height" value={mowHeightLabel(lawnArea.defaultMowHeight)} />
-              <Row
+            <View style={styles.statGrid}>
+              <StatTile label="Frequency" value={frequencyLabel(lawnArea.frequency)} />
+              <StatTile label="Default height" value={mowHeightLabel(lawnArea.defaultMowHeight)} />
+              <StatTile
                 label="Last mowed"
                 value={lawnArea.lastMowedDate ? formatDisplayDate(lawnArea.lastMowedDate) : 'Never'}
               />
-              {lawnArea.notes ? <Row label="Notes" value={lawnArea.notes} /> : null}
-            </Card>
+              <StatTile
+                label="Next due"
+                value={dueInfo.dueDate ? formatDisplayDate(dueInfo.dueDate) : '—'}
+              />
+            </View>
+            {lawnArea.notes ? (
+              <Card>
+                <Text style={styles.notesLabel}>Notes</Text>
+                <Text style={styles.notesValue}>{lawnArea.notes}</Text>
+              </Card>
+            ) : null}
             <PrimaryButton
               title="Log a mow for this area"
               onPress={() =>
@@ -69,7 +78,7 @@ export function LawnAreaDetailScreen({ route, navigation }: Props) {
               }
               style={styles.logButton}
             />
-            <Text style={styles.sectionTitle}>Mow history</Text>
+            <Text style={styles.sectionTitle}>Recent mows</Text>
           </View>
         }
         ListEmptyComponent={
@@ -97,11 +106,11 @@ export function LawnAreaDetailScreen({ route, navigation }: Props) {
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function StatTile({ label, value }: { label: string; value: string }) {
   return (
-    <View style={styles.row}>
-      <Text style={styles.rowLabel}>{label}</Text>
-      <Text style={styles.rowValue}>{value}</Text>
+    <View style={styles.statTile}>
+      <Text style={styles.statTileLabel}>{label}</Text>
+      <Text style={styles.statTileValue}>{value}</Text>
     </View>
   );
 }
@@ -111,9 +120,25 @@ const styles = StyleSheet.create({
   listContent: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.lg, marginBottom: spacing.md },
   title: { ...typography.h1, color: colors.textPrimary, flexShrink: 1, marginRight: spacing.sm },
-  row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: spacing.xs },
-  rowLabel: { ...typography.caption, color: colors.textSecondary },
-  rowValue: { ...typography.bodyBold, color: colors.textPrimary },
+  statGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.md },
+  statTile: {
+    width: '48%',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+  },
+  statTileLabel: {
+    ...typography.small,
+    color: colors.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    marginBottom: spacing.xs,
+  },
+  statTileValue: { ...typography.bodyBold, color: colors.textPrimary },
+  notesLabel: { ...typography.small, color: colors.textSecondary, textTransform: 'uppercase', marginBottom: spacing.xs },
+  notesValue: { ...typography.body, color: colors.textPrimary },
   logButton: { marginTop: spacing.md, marginBottom: spacing.lg },
   sectionTitle: { ...typography.h3, color: colors.textPrimary, marginBottom: spacing.sm },
   recordDate: { ...typography.bodyBold, color: colors.textPrimary },

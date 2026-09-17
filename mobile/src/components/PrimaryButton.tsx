@@ -26,6 +26,7 @@ export function PrimaryButton({
   return (
     <TouchableOpacity
       accessibilityRole="button"
+      activeOpacity={0.85}
       style={[
         styles.button,
         isSecondary ? styles.secondary : styles.primary,
@@ -35,7 +36,7 @@ export function PrimaryButton({
       disabled={disabled || loading}
       {...rest}>
       {loading ? (
-        <ActivityIndicator color={isSecondary ? colors.primary : colors.textInverse} />
+        <ActivityIndicator color={isSecondary ? colors.textPrimary : colors.textInverse} />
       ) : (
         <Text style={[styles.label, isSecondary && styles.secondaryLabel]}>{title}</Text>
       )}
@@ -45,15 +46,16 @@ export function PrimaryButton({
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: radius.md,
+    borderRadius: radius.pill,
     paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 48,
+    minHeight: 50,
   },
   primary: { backgroundColor: colors.primary },
-  secondary: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.primary },
+  secondary: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   disabled: { opacity: 0.6 },
   label: { ...typography.bodyBold, color: colors.textInverse },
-  secondaryLabel: { color: colors.primary },
+  secondaryLabel: { color: colors.textPrimary },
 });

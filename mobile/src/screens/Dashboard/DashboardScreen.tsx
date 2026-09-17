@@ -7,12 +7,13 @@ import { Card } from '../../components/Card';
 import { EmptyState } from '../../components/EmptyState';
 import { Screen } from '../../components/Screen';
 import { StatusBadge } from '../../components/StatusBadge';
-import { colors, spacing, typography } from '../../theme';
+import { ClockIcon, DueTodayIcon } from '../../components/icons';
+import { colors, radius, spacing, typography } from '../../theme';
 import type { LawnAreaDueInfo, MowRecord } from '../../types';
 import { formatDisplayDate, todayIso } from '../../utils/date';
 import { getLawnAreaDueInfo, isDueThisWeek, isDueToday, isOverdue, sortByUrgency } from '../../utils/dueDate';
 
-type Section = { title: string; data: LawnAreaDueInfo[] };
+type Section = { title: string; data: LawnAreaDueInfo[]; icon: 'overdue' | 'due' };
 
 export function DashboardScreen() {
   const tabBarHeight = useBottomTabBarHeight();
@@ -51,9 +52,9 @@ export function DashboardScreen() {
   }
 
   const sections: Section[] = [
-    { title: `Overdue (${overdue.length})`, data: overdue },
-    { title: `Due today (${dueTodayList.length})`, data: dueTodayList },
-    { title: `Due this week (${dueThisWeek.length})`, data: dueThisWeek },
+    { title: 'Overdue', data: overdue, icon: 'overdue' },
+    { title: 'Due today', data: dueTodayList, icon: 'due' },
+    { title: 'Due this week', data: dueThisWeek, icon: 'due' },
   ];
 
   if (isLoading) {
@@ -68,9 +69,17 @@ export function DashboardScreen() {
     <Screen padded={false}>
       <FlatList
         contentContainerStyle={[styles.listContent, { paddingBottom: tabBarHeight + spacing.xl }]}
-        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={refresh} />}
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={refresh} tintColor={colors.textPrimary} />}
         ListHeaderComponent={
-          <Text style={styles.pageTitle}>Dashboard</Text>
+          <View style={styles.header}>
+            <Text style={styles.eyebrow}>TurfOps</Text>
+            <Text style={styles.pageTitle}>Run sheet</Text>
+            <View style={styles.statRow}>
+              <StatTile value={overdue.length} label="Overdue" tone="overdue" />
+              <StatTile value={dueTodayList.length} label="Due today" tone="neutral" />
+              <StatTile value={dueThisWeek.length} label="This week" tone="ok" />
+            </View>
+          </View>
         }
         data={sections}
         keyExtractor={item => item.title}
@@ -83,14 +92,27 @@ export function DashboardScreen() {
               section.data.map(info => (
                 <Card key={info.lawnArea.id} style={styles.lawnAreaCard}>
                   <View style={styles.lawnAreaRow}>
-                    <Text style={styles.lawnAreaName}>{info.lawnArea.name}</Text>
+                    <View
+                      style={[
+                        styles.iconChip,
+                        section.icon === 'due' && styles.iconChipNeutral,
+                      ]}>
+                      {section.icon === 'overdue' ? (
+                        <ClockIcon color={colors.primaryLight} size={20} />
+                      ) : (
+                        <DueTodayIcon color={colors.accent} size={20} />
+                      )}
+                    </View>
+                    <View style={styles.lawnAreaInfo}>
+                      <Text style={styles.lawnAreaName}>{info.lawnArea.name}</Text>
+                      <Text style={styles.lawnAreaMeta}>
+                        {info.lawnArea.lastMowedDate
+                          ? `Last mowed ${formatDisplayDate(info.lawnArea.lastMowedDate)}`
+                          : 'Never mowed'}
+                      </Text>
+                    </View>
                     <StatusBadge status={info.status} />
                   </View>
-                  <Text style={styles.lawnAreaMeta}>
-                    {info.lawnArea.lastMowedDate
-                      ? `Last mowed ${formatDisplayDate(info.lawnArea.lastMowedDate)}`
-                      : 'Never mowed'}
-                  </Text>
                 </Card>
               ))
             )}
@@ -118,15 +140,69 @@ export function DashboardScreen() {
   );
 }
 
+function StatTile({
+  value,
+  label,
+  tone,
+}: {
+  value: number;
+  label: string;
+  tone: 'overdue' | 'neutral' | 'ok';
+}) {
+  return (
+    <View
+      style={[
+        styles.statTile,
+        tone === 'overdue' && styles.statTileOverdue,
+        tone === 'ok' && styles.statTileOk,
+      ]}>
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   loading: { marginTop: spacing.xxl },
   listContent: { paddingHorizontal: spacing.lg },
-  pageTitle: { ...typography.h1, color: colors.textPrimary, marginTop: spacing.lg, marginBottom: spacing.md },
+  header: { marginTop: spacing.lg, marginBottom: spacing.lg },
+  eyebrow: {
+    ...typography.small,
+    color: colors.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+    marginBottom: spacing.xs,
+  },
+  pageTitle: { ...typography.h1, color: colors.textPrimary, marginBottom: spacing.lg },
+  statRow: { flexDirection: 'row', gap: spacing.sm },
+  statTile: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.sm,
+  },
+  statTileOverdue: { backgroundColor: colors.statusOverdueBg, borderColor: 'transparent' },
+  statTileOk: { backgroundColor: colors.statusOkBg, borderColor: 'transparent' },
+  statValue: { ...typography.h2, color: colors.textPrimary },
+  statLabel: { ...typography.small, color: colors.textSecondary, marginTop: spacing.xs },
   section: { marginBottom: spacing.lg },
   sectionTitle: { ...typography.h3, color: colors.textPrimary, marginBottom: spacing.sm },
   sectionEmpty: { ...typography.caption, color: colors.textSecondary },
   lawnAreaCard: { gap: spacing.xs },
-  lawnAreaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  lawnAreaRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  iconChip: {
+    width: 42,
+    height: 42,
+    borderRadius: radius.md,
+    backgroundColor: colors.statusOverdueBg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconChipNeutral: { backgroundColor: colors.statusDueBg },
+  lawnAreaInfo: { flex: 1, minWidth: 0 },
   lawnAreaName: { ...typography.bodyBold, color: colors.textPrimary },
   lawnAreaMeta: { ...typography.caption, color: colors.textSecondary, marginTop: 2 },
 });
